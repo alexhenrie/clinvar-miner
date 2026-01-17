@@ -435,7 +435,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY country_code ORDER BY count DESC'
+        self.query += ' GROUP BY country_code ORDER BY count DESC, country_name ASC'
 
         return self.rows()
 
@@ -455,7 +455,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY method ORDER BY count DESC'
+        self.query += ' GROUP BY method ORDER BY count DESC, method ASC'
 
         return self.rows()
 
@@ -502,7 +502,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY submitter1_id ORDER BY count DESC'
+        self.query += ' GROUP BY submitter_id ORDER BY count DESC, submitter_name ASC'
 
         return self.rows()
 
@@ -616,7 +616,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY condition_name ORDER BY count DESC'
+        self.query += ' GROUP BY condition_name ORDER BY count DESC, condition_name ASC'
 
         return self.rows()
 
@@ -724,9 +724,9 @@ class DB():
         self.and_optimized_conflict_level()
 
         if kwargs.get('original_genes'):
-            self.query += ' GROUP BY gene ORDER BY count DESC'
+            self.query += ' GROUP BY gene ORDER BY count DESC, gene ASC'
         else:
-            self.query += ' GROUP BY normalized_gene ORDER BY count DESC'
+            self.query += ' GROUP BY normalized_gene ORDER BY count DESC, normalized_gene ASC'
 
         return self.rows()
 
@@ -835,7 +835,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY significance ORDER BY count DESC'
+        self.query += ' GROUP BY significance ORDER BY count DESC, significance ASC'
 
         return self.rows()
 
@@ -900,7 +900,7 @@ class DB():
 
         self.and_optimized_conflict_level()
 
-        self.query += ' GROUP BY submitter_id ORDER BY count DESC'
+        self.query += ' GROUP BY submitter_id ORDER BY count DESC, submitter_name ASC'
 
         return self.rows()
 
