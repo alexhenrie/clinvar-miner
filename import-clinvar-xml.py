@@ -34,7 +34,9 @@ standard_methods = [
 ]
 
 def connect():
-    return sqlite3.connect('clinvar.db', timeout=600)
+    # autocommit=False ensures that everything is done in a single transaction,
+    # so users don't see incomplete or partially updated data
+    return sqlite3.connect('clinvar.db', autocommit=False, timeout=600)
 
 def create_tables():
     db = connect()
@@ -317,20 +319,16 @@ def import_file(filename):
             if el.tag == 'ReleaseSet':
                 date = el.attrib['Dated']
                 break
-        #hack the ClinVar XML file into pieces to parse it in parallel (if memory permits)
-        clinvarsets = re.findall(b'<ClinVarSet .+?</ClinVarSet>', doc, re.DOTALL)
-    if virtual_memory().available >= getsize(filename) * 2:
-        submission_sets = Pool().map(partial(get_submissions, date), clinvarsets)
-    else:
-        submission_sets = map(partial(get_submissions, date), clinvarsets)
-    submissions = [submission for submission_set in submission_sets for submission in submission_set]
+        #hack the ClinVar XML file into pieces to parse it in parallel
+        clinvarsets = (match.group(0) for match in re.finditer(b'<ClinVarSet .+?</ClinVarSet>', doc, re.DOTALL))
+    submission_sets = Pool().imap_unordered(partial(get_submissions, date), clinvarsets)
+    submissions = (submission for submission_set in submission_sets for submission in submission_set)
 
-    #do all the database imports at once to minimize the time that we hold the database lock
     db = connect()
     cursor = db.cursor()
 
     cursor.executemany(
-        'INSERT OR REPLACE INTO submissions VALUES (' + ','.join('?' * len(submissions[0])) + ')', submissions
+        'INSERT OR REPLACE INTO submissions VALUES (' + ','.join('?' * 26) + ')', submissions
     )
 
     del submissions
