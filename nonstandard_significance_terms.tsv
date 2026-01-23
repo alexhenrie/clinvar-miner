@@ -1,16 +1,21 @@
 associated with leiomyomas	association
 benign/likely benign	likely benign
 cancer	other
+confers sensitivity	association
 conflicting data from submitters	uncertain significance
 drug-response	drug response
+established risk allele	pathogenic
 hscr variant	likely pathogenic
 likely pathogenic - adrenal bilateral pheochromocy	likely pathogenic
 likely pathogenic - adrenal pheochromocytoma	likely pathogenic
+likely pathogenic, low penetrance	likely pathogenic
+likely risk allele	likely pathogenic
 moderate	pathogenic
 mut	pathogenic
 no known pathogenicity	benign
 non-pathogenic	benign
 pathogenic variant for bardet-biedl syndrome	pathogenic
+pathogenic, low penetrance	pathogenic
 pathogenic/likely pathogenic	likely pathogenic
 pathologic	pathogenic
 poly	benign
@@ -18,9 +23,11 @@ probable-non-pathogenic	likely benign
 probable-pathogenic	likely pathogenic
 probably not pathogenic	likely benign
 probably pathogenic	likely pathogenic
+risk factor	pathogenic
 suspected benign	likely benign
 suspected pathogenic	likely pathogenic
 uncertain	uncertain significance
+uncertain risk allele	uncertain significance
 uncertain significance: likely benign	likely benign
 uncertain significance: likely pathogenic	likely pathogenic
 unknown	uncertain significance
