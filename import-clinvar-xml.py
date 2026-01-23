@@ -131,6 +131,8 @@ def create_tables():
         )
     ''')
 
+    db.commit()
+
 def get_gene_type(genes, small_variant):
     if len(genes) == 0:
         return 0 #intergenic
