@@ -29,7 +29,7 @@ _Note: If developing on Windows, use of the
    Timeout 300
    WSGIDaemonProcess wsgi
    WSGIProcessGroup wsgi
-   WSGIScriptAlias /clinvar-miner /var/www/clinvar-miner/clinvar-miner.wsgi
+   WSGIScriptAlias / /var/www/clinvar-miner/clinvar-miner.wsgi
    WSGIApplicationGroup %{GLOBAL}
    LimitRequestLine 1000000
    LimitRequestFieldSize 1000000
