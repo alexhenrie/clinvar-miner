@@ -26,13 +26,34 @@ _Note: If developing on Windows, use of the
    example, if you are using Apache, the configuration would look like:
 
    ```
-   Timeout 300
-   WSGIDaemonProcess wsgi
-   WSGIProcessGroup wsgi
-   WSGIScriptAlias / /var/www/clinvar-miner/clinvar-miner.wsgi
-   WSGIApplicationGroup %{GLOBAL}
-   LimitRequestLine 1000000
-   LimitRequestFieldSize 1000000
+   <VirtualHost *:80>
+       Redirect permanent / https://www.clinvarminer.org/
+   </VirtualHost>
+
+   <VirtualHost *:443>
+       ServerName clinvarminer.org
+       Redirect permanent / https://www.clinvarminer.org/
+
+       SSLCertificateFile /etc/letsencrypt/live/clinvarminer.org/fullchain.pem
+       SSLCertificateKeyFile /etc/letsencrypt/live/clinvarminer.org/privkey.pem
+       Include /etc/letsencrypt/options-ssl-apache.conf
+   </VirtualHost>
+
+   <VirtualHost *:443>
+       ServerName www.clinvarminer.org
+
+       Timeout 300
+       WSGIDaemonProcess wsgi
+       WSGIProcessGroup wsgi
+       WSGIScriptAlias / /var/www/clinvar-miner/clinvar-miner.wsgi
+       WSGIApplicationGroup %{GLOBAL}
+       LimitRequestLine 1000000
+       LimitRequestFieldSize 1000000
+
+       SSLCertificateFile /etc/letsencrypt/live/clinvarminer.org/fullchain.pem
+       SSLCertificateKeyFile /etc/letsencrypt/live/clinvarminer.org/privkey.pem
+       Include /etc/letsencrypt/options-ssl-apache.conf
+   </VirtualHost>
    ```
 
 7. To update ClinVar Miner after each month's ClinVar release, repeat steps 3,
