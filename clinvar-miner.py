@@ -457,6 +457,9 @@ def template_functions():
         tagline += '</ul></div>'
         return tagline
 
+    def superescaped_base_url():
+        return request.base_url.replace('%2F', '%252F')
+
     def submitter_link(submitter_id, submitter_name):
         if submitter_id == 0:
             return submitter_name
@@ -537,6 +540,7 @@ def template_functions():
         'submitter_link': submitter_link,
         'submitter_tagline': submitter_tagline,
         'query_suffix': query_suffix,
+        'superescaped_base_url': superescaped_base_url,
         'table_search_box': table_search_box,
         'variant_tagline': variant_tagline,
     }

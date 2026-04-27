@@ -14,7 +14,7 @@
     <tbody>
         <tr>
             {% with %}
-                {% set url = request.base_url + '/significance/' %}
+                {% set url = superescaped_base_url() + '/significance/' %}
                 {% set params = ['min_conflict_level', 'gene_type', 'original_genes', 'date'] %}
                 {% for significance, count in overview.items() %}
                     {% if count %}

@@ -18,7 +18,7 @@
         {% for gene in breakdown_by_gene_and_significance['data'] %}
             <tr>
                 {% with %}
-                    {% set url = request.base_url + '/gene/' + (gene|superescaped or 'intergenic') %}
+                    {% set url = superescaped_base_url() + '/gene/' + (gene|superescaped or 'intergenic') %}
                     {% set params = ['min_conflict_level', 'original_genes', 'date'] %}
                     <th>
                         <a href="{{ url + query_suffix(params) }}">
