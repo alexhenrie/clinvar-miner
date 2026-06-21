@@ -4,16 +4,16 @@ function import {
     year=$1
     month=$2
 
-    filename=ClinVarFullRelease_$year-$month.xml
+    filename=ClinVarRCVRelease_$year-$month.xml
 
     # Try downloading from the root directory first
-    url=https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_xml_old_format/$filename.gz
+    url=https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_release/$filename.gz
     echo Downloading $url
     curl $url | gunzip > $filename 2> /dev/null
 
     # If that fails, try downloading from the archive directory
     if [ ! -s $filename ]; then
-        url=https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_xml_old_format/archive/$year/$filename.gz
+        url=https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_release/archive/$year/$filename.gz
         echo Downloading $url
         curl $url | gunzip > $filename 2> /dev/null
     fi
@@ -29,7 +29,7 @@ function import {
 }
 
 # Import only the December release from past years
-for year in $(seq 2012 $(expr $(date +%Y) - 1)); do
+for year in $(seq 2024 $(expr $(date +%Y) - 1)); do
     import $year 12
 done
 

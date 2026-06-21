@@ -155,14 +155,12 @@ def get_submissions(date, set_xml):
 
     if genotype_set_el != None:
         variant_id = 0
-        variant_name_el = genotype_set_el.find('./Name/ElementValue[@Type="Preferred"]')
+        variant_name = genotype_set_el.find('./Name/ElementValue[@Type="Preferred"]').text
         measure_els = genotype_set_el.findall('./MeasureSet/Measure')
     else:
         variant_id = int(measure_set_el.attrib['ID'])
-        variant_name_el = measure_set_el.find('./Name/ElementValue[@Type="Preferred"]')
+        variant_name = measure_set_el.find('./Name/ElementValue[@Type="Preferred"]').text
         measure_els = measure_set_el.findall('./Measure')
-
-    variant_name = variant_name_el.text if variant_name_el != None else str(variant_id) #missing in old versions
 
     rsid = 0
     variant_frequency = 0
@@ -190,7 +188,7 @@ def get_submissions(date, set_xml):
                 small_variant = False #probably a large deletion
 
             gene_el = relationship_el.find('./Symbol/ElementValue[@Type="Preferred"]')
-            if gene_el != None and gene_el.text: #blank in old versions
+            if gene_el != None:
                 variant_genes.add(gene_el.text)
 
         #if the compound variant is small, each individual variant should be annotated with the same genes
@@ -248,14 +246,8 @@ def get_submissions(date, set_xml):
         scv = int(scv_el.attrib['Acc'][3:])
 
         submission_id_el = assertion_el.find('./ClinVarSubmissionID')
-        significance_el = assertion_el.find('./ClinicalSignificance')
-        description_el = significance_el.find('./Description')
-        review_status_el = significance_el.find('./ReviewStatus')
-        method_el = assertion_el.find('./ObservedIn/Method/MethodType')
-        comment_el = significance_el.find('./Comment')
-
-        submitter_id = int(scv_el.attrib['OrgID']) if scv_el.attrib.get('OrgID') else 500139 #missing in old versions
-        submitter_name = submission_id_el.get('submitter', '') if submission_id_el != None else 'ClinVar Staff' #missing in old versions
+        submitter_id = int(scv_el.attrib['OrgID'])
+        submitter_name = submission_id_el.get('submitter', '')
         submitter_country_code = submitter_country_codes[submitter_id] if submitter_id in submitter_country_codes else ''
         if submitter_country_code:
             submitter_country = countries.get(alpha_3=submitter_country_code)
@@ -266,14 +258,19 @@ def get_submissions(date, set_xml):
         else:
             submitter_country_name = ''
 
-        significance = description_el.text.lower() if description_el != None else 'not provided'
+        classification_el = assertion_el.find('./Classification')
+        if (germline_classification_el := classification_el.find('./GermlineClassification')) != None:
+            significance = germline_classification_el.text.lower()
+        elif (somatic_clinical_impact_el := classification_el.find('./SomaticClinicalImpact')) != None:
+            significance = somatic_clinical_impact_el.text.lower()
+        elif (oncogenicity_classification_el := classification_el.find('./OncogenicityClassification')) != None:
+            significance = oncogenicity_classification_el.text.lower()
+        else:
+            significance = 'not provided'
         normalized_significance = nonstandard_significance_term_map.get(significance, significance)
-        last_eval = significance_el.attrib.get('DateLastEvaluated', '') #missing in old versions
-        review_status = review_status_el.text if review_status_el != None else '' #missing in old versions
-        method = method_el.text if method_el != None else 'not provided' #missing in old versions
-        normalized_method = method if method in standard_methods else 'other'
-        comment = comment_el.text if comment_el != None else ''
 
+        last_eval = classification_el.attrib.get('DateLastEvaluated', '')
+        review_status = classification_el.find('./ReviewStatus').text
         if review_status in ['criteria provided, single submitter', 'criteria provided, conflicting interpretations']:
             star_level = 1
         elif review_status == 'reviewed by expert panel':
@@ -282,6 +279,12 @@ def get_submissions(date, set_xml):
             star_level = 4
         else:
             star_level = 0
+
+        method = assertion_el.find('./ObservedIn/Method/MethodType').text
+        normalized_method = method if method in standard_methods else 'other'
+
+        comment_el = classification_el.find('./Comment')
+        comment = comment_el.text if comment_el != None else ''
 
         submissions.append((
             date,
