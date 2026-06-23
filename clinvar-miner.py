@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import json
-import gzip
 import re
 import sqlite3
+import zstd
 from asynchelper import promise, render_template_async
 from cachelib import FileSystemCache
 from cachelib import NullCache
@@ -547,8 +547,11 @@ def template_functions():
 
 @app.before_request
 def cache_get():
+    if 'zstd' not in request.accept_encodings:
+        abort(406)
+
     response = cache.get(request.url)
-    if not response or 'gzip' not in request.accept_encodings:
+    if not response:
         return None
 
     server_etag = response.get_etag()[0]
@@ -560,11 +563,10 @@ def cache_get():
 
 @app.after_request
 def cache_set(response):
-    if (ttl >= 0 and not cache.has(request.url) and response.status_code == 200 and not response.direct_passthrough and
-            'gzip' in request.accept_encodings):
-        response.set_data(gzip.compress(response.get_data()))
+    if ttl >= 0 and not cache.has(request.url) and response.status_code == 200 and not response.direct_passthrough:
+        response.set_data(zstd.compress(response.get_data()))
         response.set_etag(sha256(response.get_data()).hexdigest())
-        response.headers.set('Content-Encoding', 'gzip')
+        response.headers.set('Content-Encoding', 'zstd')
         response.freeze()
         cache.set(request.url, response, timeout=ttl)
     return response
