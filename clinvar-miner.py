@@ -1091,7 +1091,7 @@ def search():
         return redirect(request.script_root + '/variants-by-submitter/' + str(submitter_id))
 
     keywords = urlparse(request.url_root)[1] + ' ' + query
-    return redirect('https://www.google.com/search?q=site:' + quote(keywords, safe=''))
+    return redirect('https://search.brave.com/search?q=site:' + quote(keywords, safe=''))
 
 @app.route('/significance-terms')
 def significance_terms():
