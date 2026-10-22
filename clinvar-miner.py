@@ -1093,14 +1093,14 @@ def search():
     keywords = urlparse(request.url_root)[1] + ' ' + query
     return redirect('https://search.brave.com/search?q=site:' + quote(keywords, safe=''))
 
-@app.route('/significance-terms')
-def significance_terms():
-    return render_template_async(
-        'significance-terms.html',
-        # total_significance_terms_over_time=DB().total_significance_terms_over_time(),
-        significance_term_info=DB().significance_term_info(),
-        max_date=DB().max_date(),
-    )
+#@app.route('/significance-terms')
+#def significance_terms():
+#    return render_template_async(
+#        'significance-terms.html',
+#        total_significance_terms_over_time=DB().total_significance_terms_over_time(),
+#        significance_term_info=DB().significance_term_info(),
+#        max_date=DB().max_date(),
+#    )
 
 @app.route('/submissions-by-variant/<superescaped:variant_name>')
 def submissions_by_variant(variant_name):
