@@ -10,14 +10,13 @@ class DB():
     def and_optimized_conflict_level(self):
         comparison_required = (
             self.parameters.get('min_conflict_level', -1) > -1 or
-            'normalized_method' in self.parameters or
             'normalized_method2' in self.parameters or
             'normalized_significance2' in self.parameters or
             'significance' in self.parameters or
             'significance2' in self.parameters or
             'submitter2_id' in self.parameters or
-            self.parameters.get('star_level', 0) > 0 or
-            self.parameters.get('star_level2', 0) > 0
+            self.parameters.get('min_stars', 0) > 0 or
+            self.parameters.get('min_stars2', 0) > 0
         )
         if comparison_required:
             if self.parameters['original_conflict_levels']:
