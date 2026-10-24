@@ -16,8 +16,8 @@ _Note: If developing on Windows, use of the
    complete and correct (`git diff` is an easy way to look). Make any needed
    changes.
 
-5. Run `make` to build the ClinVar Miner database. This process takes about 1
-   hour.
+5. Run `make` to build the ClinVar Miner database. This process takes about 4
+   hours.
 
 6. For **development**, run `./start-dev.sh` and open http://localhost:5000/ in
    your web browser. You can change the port number by passing `-p <port>`.

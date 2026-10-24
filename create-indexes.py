@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import itertools as it
+
 print('Creating indexes')
 
 def create_index(cursor, table, columns):
@@ -27,29 +29,46 @@ for column in submission_columns_to_index:
     create_index(cursor, 'submissions', [column])
     create_index(cursor, 'submissions', ['date', column])
 
-comparison_columns_to_index = [
-    'variant_name',
-    'gene',
-    'gene_type',
-    'normalized_gene',
-    'normalized_gene_type',
-    'submitter1_id',
-    'submitter1_country_code',
-    'scv1',
-    'significance1',
-    'normalized_significance1',
-    'condition1_name',
-    'method1',
-    'normalized_method1',
-    'submitter2_id',
-    'significance2',
-    'normalized_significance2',
-    'normalized_method2',
-    'condition2_name',
-]
-for column in comparison_columns_to_index:
-    create_index(cursor, 'comparisons', ['date', 'conflict_level', 'star_level1', 'star_level2', column])
-    create_index(cursor, 'comparisons', ['date', 'normalized_conflict_level', 'star_level1', 'star_level2', column])
+#front page
+create_index(cursor, 'comparisons', ['date', 'conflict_level', 'scv1'])
+
+#many pages are filtered by conflict_level=-1 by default as an optimization
+for first_cols in (['date'], ['date', 'conflict_level']):
+    #total submissions by method
+    create_index(cursor, 'comparisons', first_cols + ['method1', 'scv1'])
+
+    #total submissions by country
+    create_index(cursor, 'comparisons', first_cols + ['submitter1_country_code', 'scv1'])
+    create_index(cursor, 'comparisons', first_cols + ['submitter1_country_code', 'submitter1_id', 'scv1'])
+
+    #submissions by variant
+    create_index(cursor, 'comparisons', first_cols + ['variant_name', 'scv1'])
+
+    for gene_col in ('gene', 'normalized_gene'):
+        categories = (gene_col, 'condition1_name', 'submitter1_id')
+
+        for significance_col in ('significance', 'normalized_significance'):
+            #variants by significance
+            for category in categories:
+                create_index(cursor, 'comparisons', first_cols + [significance_col + '1', category, 'variant_name'])
+
+            #variants by gene, condition, submitter
+            for category_permutation in it.permutations(categories, 2):
+                create_index(cursor, 'comparisons', first_cols + list(category_permutation) + [significance_col + '1', 'variant_name'])
+
+            for conflict_level_col in ('conflict_level', 'normalized_conflict_level'):
+                #variants in conflict by significance
+                create_index(cursor, 'comparisons', ['date', conflict_level_col, 'variant_name'])
+                create_index(cursor, 'comparisons', ['date', significance_col + '1', significance_col + '2', conflict_level_col, 'variant_name'])
+
+                #variants in conflict by gene, condition, submitter
+                for category in categories:
+                    create_index(cursor, 'comparisons', ['date', category, conflict_level_col, 'variant_name'])
+                    create_index(cursor, 'comparisons', ['date', category, significance_col + '1', significance_col + '2', conflict_level_col, 'variant_name'])
+
+                #variants in conflict by submitter pair
+                create_index(cursor, 'comparisons', ['date', 'submitter1_id', 'submitter2_id', conflict_level_col, 'variant_name'])
+                create_index(cursor, 'comparisons', ['date', 'submitter1_id', 'submitter2_id', significance_col + '1', significance_col + '2', conflict_level_col, 'variant_name'])
 
 create_index(cursor, 'mondo_clinvar_relationships', ['mondo_id'])
 
@@ -59,7 +78,7 @@ date = list(cursor.execute('SELECT MAX(date) FROM submissions'))[0][0]
 
 print('Creating gene links table')
 
-def create_gene_links_table(normalized):
+for normalized in (True, False):
     if normalized:
         table = 'normalized_gene_links'
         gene_column = 'normalized_gene'
@@ -87,9 +106,6 @@ def create_gene_links_table(normalized):
                 )
 
     cursor.execute('CREATE INDEX ' + table + '__gene ON ' + table + ' (gene)')
-
-create_gene_links_table(True)
-create_gene_links_table(False)
 
 db.commit()
 db.close()
