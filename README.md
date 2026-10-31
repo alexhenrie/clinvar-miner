@@ -5,9 +5,13 @@ _Note: If developing on Windows, use of the
 (WSL) is strongly recommended._
 
 1. Install Make, cURL, Python 3, Pip 3, and SQLite from your system package
-   manager.
+   manager. For example, on Debian you can install them with
+   `sudo apt install make curl python3 python3-pip sqlite3`
 
-2. Run `pip3 install -r requirements.txt` to install required Python packages.
+2. Run `pip3 install -r requirements.txt` to install required Python packages,
+   or install them via your system package manager. For example, on Debian you
+   can install the Python packages with
+   `sudo apt install $(cat requirements.txt | sed 's/^/python3-/')`
 
 3. Run `make countries` to update information about ClinVar submitters and their
    countries.
@@ -23,7 +27,8 @@ _Note: If developing on Windows, use of the
    your web browser. You can change the port number by passing `-p <port>`.
 
    For **production**, point your web server to `clinvar-miner.wsgi`. For
-   example, if you are using Apache, the configuration would look like:
+   example, if you are using Apache, you might have a configuration file
+   `/etc/apache2/sites-available/clinvarminer.conf` that looks like this:
 
    ```
    <VirtualHost *:80>
@@ -58,7 +63,7 @@ _Note: If developing on Windows, use of the
 
 7. To update ClinVar Miner after each month's ClinVar release, repeat steps 3,
    4, and 5, and restart the web server with e.g.
-   `sudo systemctl restart httpd`.
+   `sudo systemctl restart apache2`.
 
 ## License
 This program is free software: you can redistribute it and/or modify it under
