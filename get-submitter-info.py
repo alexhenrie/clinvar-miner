@@ -74,7 +74,7 @@ for row in tqdm(organization_summary):
     # First look for the country code in the official ClinVar spreadsheet,
     # then in the current ClinVar Miner spreadsheet, then on the ClinVar
     # website
-    country_code = lookup_country_code(row[4])
+    country_code = lookup_country_code(row[5])
     if not country_code and submitter_id in submitter_info:
         country_code = submitter_info[submitter_id][1]
     if not country_code:
